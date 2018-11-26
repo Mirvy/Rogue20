@@ -1,0 +1,24 @@
+#ifndef CORE_H
+#define CORE_H
+#include "libtcod.hpp"
+#include <stdio.h>
+#include <cmath>
+#include <stdarg.h>
+class Actor;
+class Ai;
+class Destructible;
+class Attacker;
+class Pickable;
+class Container;
+class Gui;
+#include "Destructible.h"
+#include "Attacker.h"
+#include "Pickable.h"
+#include "Container.h"
+#include "Ai.h"
+#include "Actor.h"
+#include "Map.h"
+#include "Engine.h"
+#include "BspListener.h"
+#include "Gui.h"
+#endif
