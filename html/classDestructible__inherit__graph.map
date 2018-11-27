@@ -1,0 +1,5 @@
+<map id="Destructible" name="Destructible">
+<area shape="rect" id="node3" href="$classMonsterDestructible.html" title="Trait &#45; Destructible Monsters. " alt="" coords="5,447,164,553"/>
+<area shape="rect" id="node4" href="$classPlayerDestructible.html" title="Trait &#45; Destructible Player. " alt="" coords="189,447,338,553"/>
+<area shape="rect" id="node2" href="$classPersistent.html" title="INTERFACE &#45; Save/Load. " alt="" coords="119,5,229,112"/>
+</map>

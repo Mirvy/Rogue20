@@ -1,6 +1,5 @@
 #ifndef ATTACKER_H
 #define ATTACKER_H
-#include "core.h"
 
 /****************************************//*!***********
  * \brief ROOT Attacker Class
@@ -9,10 +8,12 @@
  * to deal damage to other actors.
  * ****************************************************/
 
-class Attacker {
+class Attacker : public Persistent {
 	public :
 		float power;                             /*!< Hit points given.*/
 		Attacker(float power);
+        void save(TCODZip &zip);                             /*!< Saves the current state.*/
+        void load(TCODZip &zip);                             /*!< Loads the saved state.*/
 		void attack(Actor *owner, Actor *target);/*!< Performs the attach against target.*/
 };
 #endif

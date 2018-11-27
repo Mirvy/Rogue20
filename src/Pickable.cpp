@@ -1,4 +1,4 @@
-#include "Pickable.h"
+#include "core.h"
 
 bool Pickable::pick(Actor *owner, Actor *wearer) {
 	if(wearer->container && wearer->container->add(owner)){
@@ -90,8 +90,6 @@ bool Confuser::use(Actor *owner, Actor *wearer) {
 	}
 	Actor *actor = engine.getActor(x,y);
 	if(!actor) {
-//	engine.gui->message(TCODColor::lightGreen,
-//			"ERROR**!actor in Confuser::use**ERROR", actor->name);
 		return false;
 	}
 	// confuse the monster for <nbTurns> turns

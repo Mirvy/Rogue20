@@ -15,12 +15,13 @@ class BspListener : public ITCODBspCallback {
 		bool visitNode(TCODBsp *node, void *userData) {
 			if(node->isLeaf()) {
 				int x,y,w,h;
-				TCODRandom *rng = TCODRandom::getInstance();
-				w = rng->getInt(ROOM_MIN_SIZE, node->w-2);
-				h = rng->getInt(ROOM_MIN_SIZE, node->h-2);
-				x = rng->getInt(node->x+1, node->x+node->w-w-1);
-				y = rng->getInt(node->y+1, node->y+node->h-h-1);
-				map.createRoom(roomNum == 0, x, y, x+w-1, y+h-1);
+				bool withActors = (bool)userData;
+				// dig a room
+				w = map.rng->getInt(ROOM_MIN_SIZE, node->w-2);
+				h = map.rng->getInt(ROOM_MIN_SIZE, node->h-2);
+				x = map.rng->getInt(node->x+1, node->x+node->w-w-1);
+				y = map.rng->getInt(node->y+1, node->y+node->h-h-1);
+				map.createRoom(roomNum == 0, x, y, x+w-1, y+h-1,withActors);
 			
 				if(roomNum != 0) {
 					// dig a corridor from last room
@@ -36,17 +37,22 @@ class BspListener : public ITCODBspCallback {
 };
 
 Map::Map(int width, int height) : width(width),height(height) {
-	tiles = new Tile[width*height];
-	map = new TCODMap(width,height);
-	TCODBsp bsp(0,0,width,height);
-	bsp.splitRecursive(NULL,8,ROOM_MAX_SIZE,ROOM_MAX_SIZE,1.5f,1.5f);
-	BspListener listener(*this);
-	bsp.traverseInvertedLevelOrder(&listener,NULL);
+	seed = TCODRandom::getInstance()->getInt(0,0x7FFFFFFF);
 }
 
 Map::~Map() {
 	delete [] tiles;
 	delete map;
+}
+
+void Map::init(bool withActors) {
+	rng = new TCODRandom(seed, TCOD_RNG_CMWC);
+	tiles = new Tile[width*height];
+	map = new TCODMap(width,height);
+	TCODBsp bsp(0,0,width,height);
+	bsp.splitRecursive(NULL,8,ROOM_MAX_SIZE,ROOM_MAX_SIZE,1.5f,1.5f);
+	BspListener listener(*this);
+	bsp.traverseInvertedLevelOrder(&listener,(void *)withActors);
 }
 
 bool Map::isWall(int x, int y) const {
@@ -93,20 +99,20 @@ void Map::addMonster(int x, int y) {
 void Map::addItem(int x, int y) {
 	TCODRandom *rng = TCODRandom::getInstance();
 	int dice = rng->getInt(0,100);
-	if(dice < 10) { //70
+	if(dice < 70) {
 		// create a health potion
 	Actor *healthPotion = new Actor(x,y,'!',"health potion", TCODColor::violet);
 	healthPotion->blocks = false;
 	healthPotion->pickable = new Healer(4);
 	engine.actors.push(healthPotion);
-	}else if(dice < 10+10) { //70+10
+	}else if(dice < 70+10) {
 		// create a scroll of lighning bolt
 		Actor *scrollOfLightningBolt = new Actor(x,y,'#',"scroll of lightning bolt",
 				TCODColor::lightYellow);
 		scrollOfLightningBolt->blocks = false;
 		scrollOfLightningBolt->pickable = new LightningBolt(5,20);
 		engine.actors.push(scrollOfLightningBolt);
-	}else if(dice < 10+10+10) {//70+10+10
+	}else if(dice < 70+10+10) {
 		//create a scroll of fireball
 		Actor *scrollOfFireball = new Actor(x,y,'#',"scroll of fireball",TCODColor::lightYellow);
 		scrollOfFireball->blocks=false;
@@ -181,8 +187,11 @@ void Map::dig(int x1, int y1, int x2, int y2) {
 	}
 }
 
-void Map::createRoom(bool first, int x1, int y1, int x2, int y2) {
+void Map::createRoom(bool first, int x1, int y1, int x2, int y2, bool withActors) {
 	dig(x1,y1,x2,y2);
+	if(!withActors) {
+		return ;
+	}
 	if(first){
 		// put the player in the first room
 		engine.player->x = (x1+x2) / 2;

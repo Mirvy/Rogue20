@@ -1,6 +1,5 @@
 #ifndef ENGINE_H
 #define ENGINE_H
-#include "core.h"
 
 /******************************************//*!**************
  * \brief Core Game Engine
@@ -11,7 +10,7 @@
 class Engine {
 	public :
 
-		/************************************//*******
+		/************************************//*!*****
 		 * \brief Game States
 		 *
 		 * Used to set the game into different states.
@@ -36,6 +35,9 @@ class Engine {
 		TCOD_mouse_t mouse;       /*!< Last mouse information stored(location,button).*/
 
 		Engine(int screenWidth, int screenHeight);
+		void init(); 						  /*!< Initialiases the game engine.*/
+		void load(); 						  /*!< Loads the stored game state.*/
+		void save(); 						  /*!< Saves the current game state.*/
 		void update();                                            /*!< Calls update() for map and actors.*/
 		void render();                                            /*!< Calls render() for map gui and actors.*/
 		void sendToBack(Actor *actor);                            /*!< Moves actors to the front so they are buried.*/

@@ -1,0 +1,4 @@
+<map id="MonsterDestructible" name="MonsterDestructible">
+<area shape="rect" id="node2" href="$classDestructible.html" title="ROOT Class for Destructibles. " alt="" coords="25,160,145,399"/>
+<area shape="rect" id="node3" href="$classPersistent.html" title="INTERFACE &#45; Save/Load. " alt="" coords="30,5,139,112"/>
+</map>

@@ -1,8 +1,8 @@
-#include "Attacker.h"
+#include <stdio.h>
+#include "core.h"
 
 Attacker::Attacker(float power) : power(power) {
 }
-
 
 void Attacker::attack(Actor *owner, Actor *target) {
 	if(target->destructible && ! target->destructible->isDead()) {

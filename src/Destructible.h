@@ -1,6 +1,5 @@
 #ifndef DESTRUCTIBLE_H
 #define DESTRUCTIBLE_H
-#include "core.h"
 
 /*****************************************//*!**********
  * \brief ROOT Class for Destructibles
@@ -9,7 +8,7 @@
  * which can be destroyed or take damage.
  * ****************************************************/
 
-class Destructible {
+class Destructible : public Persistent {
 	public :
 		float maxHp;            /*!< Maximum health points.*/
 		float hp;               /*!< Current health points.*/
@@ -17,11 +16,27 @@ class Destructible {
 		const char *corpseName; /*!< The actor's name once dead/destroyed.*/
 		
 		Destructible(float maxHp, float defense, const char* corpseName);
+        void save(TCODZip &zip);
+        void load(TCODZip &zip);
+        static Destructible *create(TCODZip &zip);
 		inline bool isDead() { return hp <= 0; }     /*!< Determines if an actor is dead.*/
 		float takeDamage(Actor *owner, float damage);/*!< Applies damage to owner.*/
 		float heal(float amount);                    /*!< Heals for amount.*/
 		virtual void die(Actor *owner);              /*!< Kills the actor; turns them into corpse.*/
-		virtual ~Destructible(){};
+		virtual ~Destructible();
+    protected:
+
+        /*******************//*!********
+         * \brief Polymorphism Key
+         *
+         * Provides a key for save/load
+         * to determine what type of
+         * descendant to instantiate.
+         ******************************/
+
+        enum DestructibleType {
+            MONSTER,PLAYER
+        };
 };
 
 /************************************//*!*************
@@ -34,6 +49,7 @@ class Destructible {
 class MonsterDestructible : public Destructible {
 	public : 
 		MonsterDestructible(float maxHp, float defense, const char *corpseName);
+        void save(TCODZip &zip);
 		void die(Actor *owner);                   /*!< Kills the monster; turns it into a corpse.*/
 };
 
@@ -47,6 +63,7 @@ class MonsterDestructible : public Destructible {
 class PlayerDestructible : public Destructible {
 	public :
 		PlayerDestructible(float maxHp, float defense, const char * corpseName);
+        void save(TCODZip &zip);
 		void die(Actor *owner);                  /*!< Kills the player; turns it into a corpse.*/
 };
 #endif

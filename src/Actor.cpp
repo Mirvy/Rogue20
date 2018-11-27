@@ -1,4 +1,5 @@
-#include "Actor.h"
+#include <math.h>
+#include "core.h"
 
 Actor::Actor(int x, int y, int ch, const char *name, const TCODColor &col) :
 	x(x), y(y), ch(ch), name(name), col(col), 

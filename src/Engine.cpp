@@ -1,19 +1,10 @@
+#include <math.h>
 #include "core.h"
 
 Engine::Engine(int screenWidth, int screenHeight) : gameStatus(STARTUP), fovRadius(10),
 		screenWidth(screenWidth), screenHeight(screenHeight) {
 	TCODConsole::initRoot(screenWidth,screenHeight,"libtcod C++ tutorial",false);
-	player = new Actor(40,25,'@',"player",TCODColor::white);
-	player->destructible = new PlayerDestructible(30,2,"your cadaver");
-	player->attacker = new Attacker(5);
-	player->ai = new PlayerAi();
-	player->container = new Container(26);
-	actors.push(player);
-	//actors.push(new Actor(60,13,'@',TCODColor::yellow));
-	map = new Map(80,43);
 	gui = new Gui();
-	gui->message(TCODColor::red,
-			"Welcome stranger!\nPrepare to perish in the Tombs of the Ancient Kings.");
 }
 
 Engine::~Engine() {
@@ -22,12 +13,25 @@ Engine::~Engine() {
 	delete gui;
 }
 
+void Engine::init() {
+	player = new Actor(40,25,'@',"player",TCODColor::white);
+	player->destructible = new PlayerDestructible(30,2,"your cadaver");
+	player->attacker = new Attacker(5);
+	player->ai = new PlayerAi();
+	player->container = new Container(26);
+	actors.push(player);
+	map = new Map(80,43);
+	map->init(true);
+	gui->message(TCODColor::red,
+			"Welcome stranger!\nPrepare to perish in the Tombs of the Ancient Kings.");
+}
+
 void Engine::update() {
 	if(gameStatus == STARTUP) {
-		for(Actor **it = actors.begin(); it != actors.end(); it++) {
+		/*for(Actor **it = actors.begin(); it != actors.end(); it++) {
 			Actor *actor = *it;
-			printf("%s\n",actor->name);
-		}
+		    	printf("%s\n",actor->name);
+		}*/
 		map->computeFov();
 	}
 	gameStatus = IDLE;

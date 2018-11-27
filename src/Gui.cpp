@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdarg.h>
 #include "core.h"
 
 static const int PANEL_HEIGHT = 7;

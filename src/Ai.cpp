@@ -1,4 +1,6 @@
-#include "Ai.h"
+#include <stdio.h>
+#include <math.h>
+#include "core.h"
 
 static const int TRACKING_TURNS = 3;
 
@@ -131,6 +133,9 @@ Actor *PlayerAi::choseFromInventory(Actor *owner) {
 	return NULL;
 }
 
+MonsterAi::MonsterAi() : moveCount(0) {
+}
+
 void MonsterAi::update(Actor *owner) {
 	if(owner->destructible && owner->destructible->isDead()) {
 		return;
@@ -194,3 +199,4 @@ void ConfusedMonsterAi::update(Actor *owner) {
 		delete this;
 	}
 }
+
