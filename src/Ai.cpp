@@ -4,6 +4,15 @@
 
 static const int TRACKING_TURNS = 3;
 
+void Ai::save(TCODZip &zip){
+}
+
+void Ai::load(TCODZip &zip){
+}
+
+void Ai::update(Actor *owner){
+}
+
 void PlayerAi::update(Actor *owner) {
 	if(owner->destructible && owner->destructible->isDead()) {
 		return;
