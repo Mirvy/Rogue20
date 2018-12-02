@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdarg.h>
 #include "core.h"
 
 static const int PANEL_HEIGHT = 7;
@@ -27,7 +29,7 @@ void Gui::render() {
 	float colorCoef = 0.4f;
 	for(Message **it = log.begin(); it != log.end(); it++) {
 		Message *msg = *it;
-		con->setDefaultForeground(msg->col * colorCoef);
+		con->setDefaultForeground(*(msg->col) * colorCoef);
 		con->print(MSG_X,y,msg->text);
 		y++;
 		if(colorCoef < 1.0f) {
@@ -60,7 +62,7 @@ void Gui::renderBar(int x, int y, int width, const char *name,
 	renderMouseLook();
 }
 
-void Gui::message(const TCODColor &col, const char *text, ...) {
+void Gui::message(const TCODColor *col, const char *text, ...) {
 	// build the text , see https://linux.die.net/man/3/va_end
 	va_list ap;
 	char buf[128];
@@ -113,7 +115,7 @@ void Gui::renderMouseLook() {
 	con->print(1,0,buf);
 }
 
-Gui::Message::Message(const char *text, const TCODColor &col) :
+Gui::Message::Message(const char *text, const TCODColor *col) :
 	text(strdup(text)),col(col) {
 }
 

@@ -1,6 +1,7 @@
-#include "Actor.h"
+#include <math.h>
+#include "core.h"
 
-Actor::Actor(int x, int y, int ch, const char *name, const TCODColor &col) :
+Actor::Actor(int x, int y, int ch, const char *name, const TCODColor *col) :
 	x(x), y(y), ch(ch), name(name), col(col), 
 	blocks(true), attacker(NULL), destructible(NULL), 
 	pickable(NULL), container(NULL), ai(NULL) {
@@ -21,7 +22,7 @@ void Actor::update() {
 
 void Actor::render() const {
 	TCODConsole::root->setChar(x,y,ch);
-	TCODConsole::root->setCharForeground(x,y,col);
+	TCODConsole::root->setCharForeground(x,y,*col);
 }
 
 float Actor::getDistance(int cx, int cy) const {

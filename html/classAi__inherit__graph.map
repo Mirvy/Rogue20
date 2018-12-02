@@ -1,0 +1,6 @@
+<map id="Ai" name="Ai">
+<area shape="rect" id="node3" href="$classConfusedMonsterAi.html" title="ConfusedMonster AI. " alt="" coords="5,351,163,487"/>
+<area shape="rect" id="node4" href="$classMonsterAi.html" title="Monster AI. " alt="" coords="187,351,312,487"/>
+<area shape="rect" id="node5" href="$classPlayerAi.html" title="Player AI. " alt="" coords="336,344,496,495"/>
+<area shape="rect" id="node2" href="$classPersistent.html" title="INTERFACE &#45; Save/Load. " alt="" coords="195,5,304,112"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="src/core.h" name="src/core.h">
+<area shape="rect" id="node3" href="$Persistent_8h.html" title="Persistent.h" alt="" coords="115,80,207,107"/>
+<area shape="rect" id="node4" href="$Destructible_8h.html" title="Destructible.h" alt="" coords="231,80,334,107"/>
+<area shape="rect" id="node5" href="$Attacker_8h.html" title="Attacker.h" alt="" coords="359,80,441,107"/>
+<area shape="rect" id="node6" href="$Ai_8h.html" title="Ai.h" alt="" coords="465,80,511,107"/>
+<area shape="rect" id="node7" href="$Pickable_8h.html" title="Pickable.h" alt="" coords="535,80,617,107"/>
+<area shape="rect" id="node8" href="$Container_8h.html" title="Container.h" alt="" coords="642,80,731,107"/>
+<area shape="rect" id="node9" href="$Actor_8h.html" title="Actor.h" alt="" coords="756,80,820,107"/>
+<area shape="rect" id="node10" href="$Map_8h.html" title="Map.h" alt="" coords="844,80,903,107"/>
+<area shape="rect" id="node11" href="$Gui_8h.html" title="Gui.h" alt="" coords="927,80,980,107"/>
+<area shape="rect" id="node12" href="$Engine_8h.html" title="Engine.h" alt="" coords="1005,80,1078,107"/>
+</map>

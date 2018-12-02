@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classPickable.html" title="ROOT of Carryable Things. " alt="" coords="5,56,77,83"/>
+<area shape="rect" id="node2" href="$classConfuser.html" title="Basic Ai&#45;Manipulator Class. " alt="" coords="137,5,211,32"/>
+<area shape="rect" id="node3" href="$classHealer.html" title="Basic Healing Class. " alt="" coords="144,56,204,83"/>
+<area shape="rect" id="node4" href="$classLightningBolt.html" title="Basic Damage Class. " alt="" coords="125,107,223,133"/>
+<area shape="rect" id="node5" href="$classFireball.html" title="Spell &#45; Fireball. " alt="" coords="271,107,335,133"/>
+</map>

@@ -1,6 +1,17 @@
-#include "Ai.h"
+#include <stdio.h>
+#include <math.h>
+#include "core.h"
 
 static const int TRACKING_TURNS = 3;
+
+void Ai::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+} 
+
+void Ai::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+}
+
+void Ai::update(Actor *owner){
+}
 
 void PlayerAi::update(Actor *owner) {
 	if(owner->destructible && owner->destructible->isDead()) {
@@ -42,18 +53,18 @@ void PlayerAi::handleActionKey(Actor *owner, int ascii) {
 					if(actor->pickable && actor->x == owner->x && actor->y == owner->y) {
 						if(actor->pickable->pick(actor,owner)) {
 							found = true;
-							engine.gui->message(TCODColor::lightGrey, 
+							engine.gui->message(&TCODColor::lightGrey, 
 									"You pick up the %s.",actor->name);
 							break;
 						}else if(!found) {
 							found = true;
-							engine.gui->message(TCODColor::red, 
+							engine.gui->message(&TCODColor::red, 
 									"Your inventory is full.");
 						}
 					}
 				}
 				if(!found) {
-					engine.gui->message(TCODColor::lightGrey, "There's nothing here that you can pick up.");
+					engine.gui->message(&TCODColor::lightGrey, "There's nothing here that you can pick up.");
 				}
 				engine.gameStatus = Engine::NEW_TURN;
 			}
@@ -87,7 +98,7 @@ bool PlayerAi::moveOrAttack(Actor *owner, int targetx, int targety) {
 		Actor *actor = *iterator;
 		bool corpseOrItem = (actor->destructible && actor->destructible->isDead()) || actor->pickable;
 		if(corpseOrItem	&& actor->x == targetx && actor->y == targety) {
-			engine.gui->message(TCODColor::lightGrey,"There's a %s here", actor->name);
+			engine.gui->message(&TCODColor::lightGrey,"There's a %s here", actor->name);
 		}
 	}
 	owner->x = targetx;
@@ -129,6 +140,9 @@ Actor *PlayerAi::choseFromInventory(Actor *owner) {
 		return NULL;
 	}
 	return NULL;
+}
+
+MonsterAi::MonsterAi() : moveCount(0) {
 }
 
 void MonsterAi::update(Actor *owner) {
@@ -194,3 +208,4 @@ void ConfusedMonsterAi::update(Actor *owner) {
 		delete this;
 	}
 }
+
