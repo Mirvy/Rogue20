@@ -9,15 +9,16 @@
  ******************************************************/
 
 class Container : public Persistent {
-	public :
-		int size;                    /*!< Maximum number of actors. 0=unlimited*/
-		TCODList<Actor *> inventory; /*!< Holds the actors held by actor.*/
-
-		Container(int size);
-        void save(TCODZip &zip);     /*!< Saves the current state.*/
-        void load(TCODZip &zip);     /*!< Loads the saved state.*/
-		bool add(Actor *actor);      /*!< Places an actor into the invetory.*/
-		void remove(Actor *actor);   /*!< Removes an actor from the inventory.*/
-		virtual ~Container();
+        public :
+                int size;                    /*!< Maximum number of actors. 0=unlimited*/
+                TCODList<Actor *> inventory; /*!< Holds the actors held by actor.*/
+                
+                Container(int size);
+                void save(boost::archive::text_oarchive &ar, const unsigned int version); /*!< Saves the current state.*/
+                void load(boost::archive::text_iarchive &ar, const unsigned int version); /*!< Loads the saved state.*/
+                bool add(Actor *actor);      /*!< Places an actor into the invetory.*/
+                void remove(Actor *actor);   /*!< Removes an actor from the inventory.*/
+                virtual ~Container();
 };
+
 #endif

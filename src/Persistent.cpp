@@ -1,61 +1,334 @@
 #include "core.h"
+#include "Persistent.h"
+#include <fstream>
+#include <string.h>
 
-void Actor::save(TCODZip &zip) {
-    zip.putInt(x);
-    zip.putInt(y);
-    zip.putInt(ch);
-    zip.putColor(&col);
-    zip.putString(name);    
-    zip.putInt(blocks);
+void Actor::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    int r,g,b;
+    r = col->r;
+    g = col->g;
+    b = col->b;
+    ar & x;
+    ar & y;
+    ar & ch;
+    ar & r;
+    ar & g;
+    ar & b;
+    ar & (std::strlen(name));
+    for(unsigned int i = 0;i<std::strlen(name);++i){
+        ar & name[i];
+    }
+    ar & blocks; 
+    ar & (attacker != NULL);
+    ar & (destructible != NULL);
+    ar & (ai != NULL);
+    ar & (pickable != NULL);
+    ar & (container != NULL);
 
-    zip.putInt(attacker != NULL);
-    zip.putInt(destructible != NULL);
-    zip.putInt(ai != NULL);
-    zip.putInt(pickable != NULL);
-    zip.putInt(container != NULL);
-
-    if(attacker) attacker->save(zip);
-    if(destructible) destructible->save(zip);
-    if(ai) ai->save(zip);
-    if(pickable) pickable->save(zip);
-    if(container) container->save(zip);
+    if(attacker) attacker->save(ar,version);
+    if(destructible) destructible->save(ar,version);
+    if(ai) ai->save(ar,version);
+    if(pickable) pickable->save(ar,version);
+    if(container) container->save(ar,version);
 }
+void Actor::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+    int r,g,b,cc;
+    ar & x;
+    ar & y;
+    ar & ch;
+    ar & r;
+    ar & g;
+    ar & b;
+    col = Persistent::assignTCODColor(r,g,b);
+    ar & cc;
+    char *tmp = new char[cc+1];
+    for(unsigned int i = 0;i<cc;++i){
+        ar & tmp[i];
+    }
+    tmp[cc] = '\0';
+    name = tmp;    
+    ar & blocks;
+    bool hasAttacker;
+    bool hasDestructible;
+    bool hasAi;
+    bool hasPickable;
+    bool hasContainer;
 
-void Actor::load(TCODZip &zip) {
-    x = zip.getInt();
-    y = zip.getInt();
-    ch = zip.getInt();
-    col = zip.getColor();
-    name = strdup(zip.getString());
-    blocks = zip.getInt();
-
-    bool hasAttacker = zip.getInt();
-    bool hasDestructible = zip.getInt();
-    bool hasAi = zip.getInt();
-    bool hasPickable = zip.getInt();
-    bool hasContainer = zip.getInt();
+    ar & hasAttacker;
+    ar & hasDestructible;
+    ar & hasAi;
+    ar & hasPickable;
+    ar & hasContainer;
 
     if(hasAttacker) {
         attacker = new Attacker(0.0f);
-        attacker->load(zip);
+        attacker->load(ar,version);
     }
     if(hasDestructible) {
-        destructible = Destructible::create(zip);
+        destructible = Destructible::create(ar);
     }
     if(hasAi) {
-        ai = Ai::create(zip);
+        ai = Ai::create(ar);
     }
     if(hasPickable) {
-        pickable = Pickable::create(zip);
+        pickable = Pickable::create(ar);
     }
     if(hasContainer) {
         container = new Container(0);
-        container->load(zip);
+        container->load(ar,version);
     }
 }
 
-Pickable *Pickable::create(TCODZip &zip) {
-    PickableType type = (PickableType)zip.getInt();
+
+Ai *Ai::create(boost::archive::text_iarchive &ar) {
+    AiType type;
+    ar & type;
+    Ai *ai = NULL;
+    switch(type) {
+        case PLAYER : ai = new PlayerAi(); break;
+        case MONSTER : ai = new MonsterAi(); break;
+        case CONFUSED_MONSTER : ai = new ConfusedMonsterAi(0,NULL); break;
+    }
+    ai->load(ar,0);
+    return ai;
+}
+
+
+void PlayerAi::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & (int)PLAYER;
+}
+
+void PlayerAi::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+}
+
+void MonsterAi::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & (int)MONSTER;
+    ar & moveCount;
+}
+
+void MonsterAi::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+    ar & moveCount;
+}
+
+void ConfusedMonsterAi::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & (int)CONFUSED_MONSTER;
+    ar & nbTurns;
+    oldAi->save(ar,version);
+}
+
+void ConfusedMonsterAi::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+    ar & nbTurns;
+    oldAi = Ai::create(ar);
+}
+
+
+void Attacker::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & power;
+}
+
+void Attacker::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+    ar & power;
+}
+
+
+void Container::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & size;
+    ar & inventory.size();
+    for(Actor **it = inventory.begin(); it != inventory.end(); it++) {
+        (*it)->save(ar,version);
+    }
+}
+
+void Container::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+    int nbActors = 0;
+    ar & size;
+    ar & nbActors;
+    while(nbActors > 0) {
+        Actor *actor = new Actor(0,0,0,NULL,&TCODColor::white);
+        actor->load(ar,version);
+        inventory.push(actor);
+        nbActors--;
+    }
+}
+
+Destructible *Destructible::create(boost::archive::text_iarchive &ar) {
+    DestructibleType type;
+    ar & type;
+    Destructible *destructible = NULL;
+    switch(type) {
+        case MONSTER : destructible = new MonsterDestructible(0,0,NULL); break;
+        case PLAYER : destructible = new PlayerDestructible(0,0,NULL); break;
+    }
+    destructible->load(ar,0);
+    return destructible;
+}
+
+void Destructible::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & maxHp;
+    ar & hp;
+    ar & defense;
+    ar & (std::strlen(corpseName));
+    for(unsigned int i = 0;i< std::strlen(corpseName);++i){
+        ar & corpseName[i];
+    }
+}
+
+void Destructible::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+    int cc;
+    ar & maxHp;
+    ar & hp;
+    ar & defense;
+    ar & cc;
+    char *tmp = new char[cc+1];
+    for(unsigned int i = 0; i < cc; ++i) {
+        ar & tmp[i];
+    }
+    tmp[cc] = '\0';
+    corpseName = tmp;
+}
+
+void MonsterDestructible::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & (int)MONSTER;
+    this->Destructible::save(ar,version);
+}
+
+void PlayerDestructible::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & (int)PLAYER;
+    this->Destructible::save(ar,version);
+}
+
+
+void Engine::save() {
+	if(player->destructible->isDead()) {
+		TCODSystem::deleteFile("game.sav");
+	}else{
+        std::ofstream ofs("game.sav");
+        boost::archive::text_oarchive ar(ofs);
+        // save the map first
+            ar & map->width;
+            ar & map->height;
+        map->save(ar,0);
+        // then the player
+        player->save(ar,0);
+        // then all the other actors
+        ar & (actors.size()-1);
+        for(Actor **iterator = actors.begin();iterator != actors.end();iterator++) {
+            if(*iterator != player) {
+                (*iterator)->save(ar,0);
+            }
+        }
+        // finally the message log
+        gui->save(ar,0);
+	}
+}
+
+void Engine::load() {
+    std::ifstream ifs("game.sav");
+    if(ifs) {
+        boost::archive::text_iarchive ar(ifs);
+        // load the map
+            int width;
+            int height;
+            ar & width;
+            ar & height;
+            map = new Map(width,height);
+        map->load(ar,0);
+        // then the player
+        player = new Actor(0,0,0,NULL,&TCODColor::white);
+        player->load(ar,0);
+        actors.push(player);
+        // then all the other actors
+        int nbActors;
+        ar & nbActors;
+        while(nbActors > 0) {
+            Actor *actor = new Actor(0,0,0,NULL,&TCODColor::white);
+            actor->load(ar,0);
+            actors.push(actor);
+            nbActors--;
+        } 
+        // finally the message log
+        gui->load(ar,0);
+    }else{
+            engine.init();
+    }
+}
+
+
+void Gui::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & log.size();
+    int r,g,b;
+    for(Message **it = log.begin(); it != log.end(); it++) {
+        ar & std::strlen((*it)->text);
+        for(unsigned int i = 0; i < std::strlen((*it)->text);++i) {
+            ar & (*it)->text[i];
+        }
+        r = (*it)->col->r;
+        g = (*it)->col->g;
+        b = (*it)->col->b;
+        ar & r;
+        ar & g;
+        ar & b;
+    }
+}
+
+void Gui::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+    int nbMessages;
+    int r,g,b,cc;
+    const char *text;
+    char *tmp;
+    const TCODColor *col;
+    ar & nbMessages;
+    while(nbMessages > 0) {
+        ar & cc;
+        tmp = new char[cc+1];
+        for(unsigned int i = 0; i < cc; ++i) {
+            ar & tmp[i];
+        }
+        tmp[cc] = '\0';
+        text = tmp;
+        ar & r;
+        ar & g;
+        ar & b;
+        col = Persistent::assignTCODColor(r,g,b);
+        message(col,text);
+        nbMessages--;
+    }
+}
+
+
+void Map::save(boost::archive::text_oarchive &ar, const unsigned int version) { 
+    ar & seed;
+    for(int i = 0; i < width*height; i++) {
+        ar & tiles[i].explored;
+    }
+}
+
+void Map::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+    ar & seed;
+    init(false);
+    for(int i = 0; i < width*height; i++) {
+        ar & tiles[i].explored;
+    }
+}
+
+
+const TCODColor *Persistent::assignTCODColor(int r, int g, int b) {
+    const TCODColor *col;
+    if(r == 0 && g == 128 && b == 0) col = &TCODColor::darkerGreen;
+    if(r == 64 && g == 128 && b == 64) col = &TCODColor::desaturatedGreen;
+    if(r == 127 && g == 0 && b == 255) col = &TCODColor::violet;
+    if(r == 159 && g == 159 && b == 159) col = &TCODColor::lightGrey;
+    if(r == 255 && g == 0 && b == 0) col = &TCODColor::red;
+    if(r == 255 && g == 255 && b == 115) col = &TCODColor::lightYellow;
+    if(r == 255 && g == 255 && b == 255){ col = &TCODColor::white; }
+    return col;    
+}
+
+Pickable *Pickable::create(boost::archive::text_iarchive &ar) {
+    PickableType type;
+    int ntype;
+    ar & ntype;
+    type = (PickableType)ntype;
     Pickable *pickable = NULL;
     switch(type) {
         case HEALER : pickable = new Healer(0); break;
@@ -63,230 +336,43 @@ Pickable *Pickable::create(TCODZip &zip) {
         case CONFUSER : pickable = new Confuser(0,0); break;
         case FIREBALL : pickable = new Fireball(0,0); break;
     }
-    pickable->load(zip);
+    pickable->load(ar,0);
     return pickable;
 }
 
-void Healer::save(TCODZip &zip) {
-    zip.putInt(HEALER);
-    zip.putFloat(amount);
+void Healer::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & (int)HEALER;
+    ar & amount;
 }
 
-void Healer::load(TCODZip &zip) {
-    amount = zip.getFloat();
+void Healer::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+    ar & amount;
 }
 
-void LightningBolt::save(TCODZip &zip) {
-    zip.putInt(LIGHTNING_BOLT);
-    zip.putFloat(range);
-    zip.putFloat(damage);
+void LightningBolt::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & (int)LIGHTNING_BOLT;
+    ar & range;
+    ar & damage;
 }
 
-void LightningBolt::load(TCODZip &zip) {
-    range = zip.getFloat();
-    damage = zip.getFloat();
+void LightningBolt::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+    ar & range;
+    ar & damage;
 }
 
-void Fireball::save(TCODZip &zip) {
-    zip.putInt(FIREBALL);
-    zip.putFloat(range);
-    zip.putFloat(damage);
+void Fireball::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & (int)FIREBALL;
+    ar & range;
+    ar & damage;
 }
 
-
-void Confuser::save(TCODZip &zip) {
-    zip.putInt(CONFUSER);
-    zip.putInt(nbTurns);
-    zip.putFloat(range);
+void Confuser::save(boost::archive::text_oarchive &ar, const unsigned int version) {
+    ar & (int)CONFUSER;
+    ar & nbTurns;
+    ar & range;
 }
 
-void Confuser::load(TCODZip &zip) {
-    nbTurns = zip.getInt();
-    range = zip.getFloat();
+void Confuser::load(boost::archive::text_iarchive &ar, const unsigned int version) {
+    ar & nbTurns;
+    ar & range;
 }
-
-Ai *Ai::create(TCODZip &zip) {
-    AiType type = (AiType)zip.getInt();
-    Ai *ai = NULL;
-    switch(type) {
-        case PLAYER : ai = new PlayerAi(); break;
-        case MONSTER : ai = new MonsterAi(); break;
-        case CONFUSED_MONSTER : ai = new ConfusedMonsterAi(0,NULL); break;
-    }
-    ai->load(zip);
-    return ai;
-}
-
-void PlayerAi::save(TCODZip &zip) {
-    zip.putInt(PLAYER);
-}
-
-void PlayerAi::load(TCODZip &zip) {
-}
-
-void MonsterAi::save(TCODZip &zip) {
-    zip.putInt(MONSTER);
-    zip.putInt(moveCount);
-}
-
-void MonsterAi::load(TCODZip &zip) {
-    moveCount = zip.getInt();
-}
-
-void ConfusedMonsterAi::save(TCODZip &zip) {
-    zip.putInt(CONFUSED_MONSTER);
-    zip.putInt(nbTurns);
-    oldAi->save(zip);
-}
-
-void ConfusedMonsterAi::load(TCODZip &zip) {
-    nbTurns = zip.getInt();
-    oldAi = Ai::create(zip);
-}
-
-void Attacker::save(TCODZip &zip) {
-    zip.putFloat(power);
-}
-
-void Attacker::load(TCODZip &zip) {
-    power = zip.getFloat();
-}
-
-void Container::save(TCODZip &zip) {
-    zip.putInt(size);
-    zip.putInt(inventory.size());
-    for(Actor **it = inventory.begin(); it != inventory.begin(); it++) {
-        (*it)->save(zip);
-    }
-}
-
-void Container::load(TCODZip &zip) {
-    size = zip.getInt();
-    int nbActors = zip.getInt();
-    while(nbActors > 0) {
-        Actor *actor = new Actor(0,0,0,NULL,TCODColor::white);
-        actor->load(zip);
-        inventory.push(actor);
-        nbActors--;
-    }
-}
-
-Destructible *Destructible::create(TCODZip &zip) {
-    DestructibleType type = (DestructibleType)zip.getInt();
-    Destructible *destructible = NULL;
-    switch(type) {
-        case MONSTER : destructible = new MonsterDestructible(0,0,NULL); break;
-        case PLAYER : destructible = new PlayerDestructible(0,0,NULL); break;
-    }
-    destructible->load(zip);
-    return destructible;
-}
-void Destructible::save(TCODZip &zip) {
-    zip.putFloat(maxHp);
-    zip.putFloat(hp);
-    zip.putFloat(defense);
-    zip.putString(corpseName);
-}
-
-void Destructible::load(TCODZip &zip) {
-    maxHp = zip.getFloat();
-    hp = zip.getFloat();
-    defense = zip.getFloat();
-    corpseName = strdup(zip.getString());
-}
-
-void MonsterDestructible::save(TCODZip &zip) {
-    zip.putInt(MONSTER);
-    Destructible::save(zip);
-}
-
-void PlayerDestructible::save(TCODZip &zip) {
-    zip.putInt(PLAYER);
-    Destructible::save(zip);
-}
-
-void Engine::save() {
-	if(player->destructible->isDead()) {
-		TCODSystem::deleteFile("game.sav");
-	}else{
-		TCODZip zip;
-        // save the map first
-            zip.putInt(map->width);
-            zip.putInt(map->height);
-        map->save(zip);
-        // then the player
-        player->save(zip);
-        // then all the other actors
-        zip.putInt(actors.size()-1);
-        for(Actor **iterator = actors.begin();iterator != actors.end();iterator++) {
-            if(*iterator != player) {
-                (*iterator)->save(zip);
-            }
-        }
-        // finally the message log
-        gui->save(zip);
-        zip.saveToFile("game.sav");
-	}
-}
-
-void Engine::load() {
-    if(TCODSystem::fileExists("gmae.sav")) {
-        TCODZip zip;
-        zip.loadFromFile("game.sav");
-        // load the map
-            int width = zip.getInt();
-            int height = zip.getInt();
-            map = new Map(width,height);
-        map->load(zip);
-        // then the player
-        player = new Actor(0,0,0,NULL,TCODColor::white);
-        player->load(zip);
-        actors.push(player);
-        // then all the other actors
-        int nbActors = zip.getInt();
-        while(nbActors > 0) {
-            Actor *actor = new Actor(0,0,0,NULL,TCODColor::white);
-            actor->load(zip);
-            actors.push(actor);
-            nbActors--;
-        } 
-        // finally the message log
-        gui->load(zip);
-    }else{
-            engine.init();
-    }
-}
-
-void Gui::save(TCODZip &zip) {
-    zip.putInt(log.size());
-    for(Message **it = log.begin(); it != log.end(); it++) {
-        zip.putString((*it)->text);
-        zip.putColor(&(*it)->col);
-    }
-}
-
-void Gui::load(TCODZip &zip) {
-    int nbMessages = zip.getInt();
-    while(nbMessages > 0) {
-        const char *text = zip.getString();
-        TCODColor col = zip.getColor();
-        message(col,text);
-        nbMessages--;
-    }
-}
-
-void Map::save(TCODZip &zip) {
-    zip.putInt(seed);
-    for(int i = 0; i < width*height; i++) {
-        zip.putInt(tiles[i].explored);
-    }
-}
-
-void Map::load(TCODZip &zip) {
-    seed = zip.getInt();
-    init(false);
-    for(int i = 0; i < width*height; i++) {
-        tiles[i].explored = zip.getInt();
-    }
-}
-

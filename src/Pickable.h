@@ -14,7 +14,7 @@ class Pickable : public Persistent {
 		bool pick(Actor *owner, Actor *wearer);        /*!< Allows wearer to hold owner, taken from the world. */
 		virtual bool use(Actor *owner, Actor *wearer); /*!< Exhausts the actor be removing it. */
 		void drop(Actor *owner, Actor *wearer);        /*!< Allows current wearer to place owner in the world. */
-        static Pickable *create(TCODZip &zip);         /*!< Faciliates state loading polymorphism */
+        static Pickable *create(boost::archive::text_iarchive &ar); /*!< Faciliates state loading polymorphism */
     protected :
 
         /*******************************//*!********
@@ -40,9 +40,9 @@ class Healer : public Pickable {
 	public :
 		float amount;                          /*!< Amount of hp which will be restored. */
 		Healer(float amount);
-        void save(TCODZip &zip);               /*!< Saves the current state. */
-        void load(TCODZip &zip);               /*!< Loads the saved state. */
 		bool use(Actor *owner, Actor *wearer); /*!< Performs the entities functions */
+        void save(boost::archive::text_oarchive &ar, const unsigned int version); /*!< Saves the current state. */
+        void load(boost::archive::text_iarchive &ar, const unsigned int version); /*!< Loads the saved state. */
 };
 
 /*******************************************//*!*************
@@ -58,9 +58,9 @@ class LightningBolt : public Pickable {
 		float range;                              /*!< Distance from the source in which actors can be affected.*/
 		float damage;                             /*!< Damage the entity deals to destructible traited actor */
 		LightningBolt(float range, float damage);
-        void save(TCODZip &zip);                  /*!< Saves the current state.*/
-        void load(TCODZip &zip);                  /*!< Loads the saved state.*/
 		bool use(Actor *owner, Actor *wearer);    /*!< Performs the entities functions */
+        void save(boost::archive::text_oarchive &ar, const unsigned int version); /*!< Saves the current state. */
+        void load(boost::archive::text_iarchive &ar, const unsigned int version); /*!< Loads the saved state. */
 };
 
 /*!****************************************//*!*************
@@ -72,8 +72,8 @@ class LightningBolt : public Pickable {
 class Fireball : public LightningBolt {
 	public :
 		Fireball(float range, float damage);
-        void save(TCODZip &zip);                  /*!< Save the current state. */
 		bool use(Actor *owner, Actor *wearer);    /*!< Performs the entities functions */
+        void save(boost::archive::text_oarchive &ar, const unsigned int version); /*!< Saves the current state. */
 };
 
 /*!***************************************//*!*************
@@ -89,8 +89,9 @@ class Confuser : public Pickable {
 		int nbTurns;                           /*!< Number of turns the AI will be changed. */
 		float range;                           /*!< Distance from the source in which actors can be affected */
 		Confuser(int nbTurns, float range);
-        void save(TCODZip &zip);               /*!< Saves the current state. */
-        void load(TCODZip &zip);               /*!< Loads the saved state. */
 		bool use(Actor *owner, Actor *wearer); /*!< Performs the entities functions */
+        void save(boost::archive::text_oarchive &ar, const unsigned int version); /*!< Saves the current state. */
+        void load(boost::archive::text_iarchive &ar, const unsigned int version); /*!< Loads the saved state. */
 };
+
 #endif

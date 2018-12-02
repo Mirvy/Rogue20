@@ -26,8 +26,8 @@ class Map : public Persistent {
 		int height;     /*!< Height of current map. */
 		
 		Map(int width, int height);
-        void save(TCODZip &zip);            /*!< Saves the current state.*/
-        void load(TCODZip &zip);            /*!< Loads a saved state.*/
+        void save(boost::archive::text_oarchive &ar, const unsigned int version); /*!< Saves the current state.*/
+        void load(boost::archive::text_iarchive &ar, const unsigned int version); /*!< Loads a saved state.*/
 		void init(bool withActors);         /*!< Initialises the map state*/
 		void render() const;                /*!< Renders the current map to main windows.*/
 		bool isInFov(int x, int y) const;   /*!< Determines if the x,y coords are within player's FOV.*/
@@ -48,4 +48,5 @@ class Map : public Persistent {
 		void createRoom(bool first, int x1, int y1, int x2, int y2, bool withActors); /*!< Used to generate random dungeon.*/
 		friend class BspListener;
 };
+
 #endif

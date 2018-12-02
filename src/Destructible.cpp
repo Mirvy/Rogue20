@@ -3,7 +3,7 @@
 
 Destructible::Destructible(float maxHp, float defense, const char *corpseName) :
 	maxHp(maxHp), hp(maxHp), defense(defense), corpseName(corpseName) {
-            this->corpseName = strdup(corpseName);
+            //this->corpseName = strdup(corpseName);
 }
 
 Destructible::~Destructible() {
@@ -35,7 +35,7 @@ float Destructible::heal(float amount) {
 void Destructible::die(Actor *owner) {
 	// transform the actor into a corpse!
 	owner->ch = '%';
-	owner->col = TCODColor::darkRed;
+	owner->col = &TCODColor::darkRed;
 	owner->name = corpseName;
 	owner->blocks = false;
 	// make sure corpses are drawn before living actors
@@ -49,7 +49,7 @@ MonsterDestructible::MonsterDestructible(float maxHp, float defense, const char 
 void MonsterDestructible::die(Actor *owner) {
 	// transform it into a nasty corpse! it doesn't block, can't be
 	// attacked and desn't move
-	engine.gui->message(TCODColor::lightGrey,"%s is dead\n",owner->name);
+	engine.gui->message(&TCODColor::lightGrey,"%s is dead\n",owner->name);
 	Destructible::die(owner);
 }
 
@@ -58,7 +58,7 @@ PlayerDestructible::PlayerDestructible(float maxHp, float defense, const char *c
 }
 
 void PlayerDestructible::die(Actor *owner) {
-	engine.gui->message(TCODColor::red,"You died!\n");
+	engine.gui->message(&TCODColor::red,"You died!\n");
 	Destructible::die(owner);
 	engine.gameStatus = Engine::DEFEAT;
 }
