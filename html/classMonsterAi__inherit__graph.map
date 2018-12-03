@@ -1,4 +1,0 @@
-<map id="MonsterAi" name="MonsterAi">
-<area shape="rect" id="node2" href="$classAi.html" title="ROOT AI Class. " alt="" coords="27,160,109,296"/>
-<area shape="rect" id="node3" href="$classPersistent.html" title="INTERFACE &#45; Save/Load. " alt="" coords="13,5,123,112"/>
-</map>

@@ -1,5 +1,0 @@
-<map id="Fireball" name="Fireball">
-<area shape="rect" id="node2" href="$classLightningBolt.html" title="Basic Damage Class. " alt="" coords="5,344,123,480"/>
-<area shape="rect" id="node3" href="$classPickable.html" title="ROOT of Carryable Things. " alt="" coords="14,160,114,296"/>
-<area shape="rect" id="node4" href="$classPersistent.html" title="INTERFACE &#45; Save/Load. " alt="" coords="9,5,119,112"/>
-</map>

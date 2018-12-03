@@ -1,7 +1,0 @@
-<map id="Pickable" name="Pickable">
-<area shape="rect" id="node3" href="$classConfuser.html" title="Basic Ai&#45;Manipulator Class. " alt="" coords="5,344,100,480"/>
-<area shape="rect" id="node4" href="$classHealer.html" title="Basic Healing Class. " alt="" coords="125,351,205,473"/>
-<area shape="rect" id="node5" href="$classLightningBolt.html" title="Basic Damage Class. " alt="" coords="229,344,346,480"/>
-<area shape="rect" id="node2" href="$classPersistent.html" title="INTERFACE &#45; Save/Load. " alt="" coords="110,5,219,112"/>
-<area shape="rect" id="node6" href="$classFireball.html" title="Spell &#45; Fireball. " alt="" coords="245,528,329,635"/>
-</map>

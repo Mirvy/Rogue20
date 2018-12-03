@@ -1,5 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classDestructible.html" title="ROOT Class for Destructibles. " alt="" coords="5,31,97,57"/>
-<area shape="rect" id="node2" href="$classMonsterDestructible.html" title="Trait &#45; Destructible Monsters. " alt="" coords="145,5,284,32"/>
-<area shape="rect" id="node3" href="$classPlayerDestructible.html" title="Trait &#45; Destructible Player. " alt="" coords="150,56,279,83"/>
-</map>
