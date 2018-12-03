@@ -5,7 +5,7 @@ which can be used to produce a functional roleplaying game. The Boost library wi
 be utilised to experiment and libtcod will serve as the API for input/output.
 
 ## Getting Started
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+//PLACEHOLDER//
 
 ## Prerequisites
 - [Boost C++ Libraries v1.68.0](https://www.boost.org/) 
