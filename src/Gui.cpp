@@ -120,5 +120,5 @@ Gui::Message::Message(const char *text, const TCODColor *col) :
 }
 
 Gui::Message::~Message() {
-	free(text);
+//	free(text);
 }

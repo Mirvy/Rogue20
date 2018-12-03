@@ -7,7 +7,7 @@ Destructible::Destructible(float maxHp, float defense, const char *corpseName) :
 }
 
 Destructible::~Destructible() {
-    free((char*)corpseName);
+    //free((char*)corpseName);
 }
 
 float Destructible::takeDamage(Actor *owner, float damage) {

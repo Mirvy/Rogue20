@@ -20,9 +20,9 @@ class Persistent {
         virtual ~Persistent() {}
         virtual void save(boost::archive::text_oarchive &ar, const unsigned int version) = 0;
         virtual void load(boost::archive::text_iarchive &ar, const unsigned int version) = 0;
-        static const TCODColor *assignTCODColor(int r, int g, int b);
         friend class boost::serialization::access;
         BOOST_SERIALIZATION_SPLIT_MEMBER()
+        //static const TCODColor *assignTCODColor(int r, int g, int b);
 };
 
 

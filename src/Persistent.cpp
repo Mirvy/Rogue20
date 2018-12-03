@@ -5,9 +5,9 @@
 
 void Actor::save(boost::archive::text_oarchive &ar, const unsigned int version) {
     int r,g,b;
-    r = col->r;
-    g = col->g;
-    b = col->b;
+    r = (int)col->r;
+    g = (int)col->g;
+    b = (int)col->b;
     ar & x;
     ar & y;
     ar & ch;
@@ -39,7 +39,8 @@ void Actor::load(boost::archive::text_iarchive &ar, const unsigned int version) 
     ar & r;
     ar & g;
     ar & b;
-    col = Persistent::assignTCODColor(r,g,b);
+    col = new TCODColor(r,g,b);
+    //col = Persistent::assignTCODColor(r,g,b);
     ar & cc;
     char *tmp = new char[cc+1];
     for(unsigned int i = 0;i<cc;++i){
@@ -289,7 +290,8 @@ void Gui::load(boost::archive::text_iarchive &ar, const unsigned int version) {
         ar & r;
         ar & g;
         ar & b;
-        col = Persistent::assignTCODColor(r,g,b);
+        col = new TCODColor(r,g,b);
+        //col = Persistent::assignTCODColor(r,g,b);
         message(col,text);
         nbMessages--;
     }
@@ -312,17 +314,17 @@ void Map::load(boost::archive::text_iarchive &ar, const unsigned int version) {
 }
 
 
-const TCODColor *Persistent::assignTCODColor(int r, int g, int b) {
+/*const TCODColor *Persistent::assignTCODColor(int r, int g, int b) {
     const TCODColor *col;
-    if(r == 0 && g == 128 && b == 0) col = &TCODColor::darkerGreen;
-    if(r == 64 && g == 128 && b == 64) col = &TCODColor::desaturatedGreen;
-    if(r == 127 && g == 0 && b == 255) col = &TCODColor::violet;
-    if(r == 159 && g == 159 && b == 159) col = &TCODColor::lightGrey;
-    if(r == 255 && g == 0 && b == 0) col = &TCODColor::red;
-    if(r == 255 && g == 255 && b == 115) col = &TCODColor::lightYellow;
-    if(r == 255 && g == 255 && b == 255){ col = &TCODColor::white; }
+    if     (r == 0   && g == 128 && b == 0) col = &TCODColor::darkerGreen;
+    else if(r == 64  && g == 128 && b == 64) col = &TCODColor::desaturatedGreen;
+    else if(r == 127 && g == 0   && b == 255) col = &TCODColor::violet;
+    else if(r == 159 && g == 159 && b == 159) col = &TCODColor::lightGrey;
+    else if(r == 255 && g == 0   && b == 0) col = &TCODColor::red;
+    else if(r == 255 && g == 255 && b == 115) col = &TCODColor::lightYellow;
+    else if(r == 255 && g == 255 && b == 255) col = &TCODColor::white; 
     return col;    
-}
+}*/
 
 Pickable *Pickable::create(boost::archive::text_iarchive &ar) {
     PickableType type;
